@@ -1,0 +1,87 @@
+Sub mySearch2()
+
+ 
+
+Dim rng As Range, ws As Worksheet, current As Worksheet, PID As Double, strRootPath As String
+
+Dim myItem As Variant, myFind As String, dummyvalue As Variant, myanswer As Variant
+
+Dim wasFound As Boolean
+
+Const strExpExe = "explorer.exe"
+
+Const strArg = " " '" /e,/root, "
+
+ 
+
+'myItem = InputBox("Please enter the value to search for")
+
+ 
+
+myItem = Selection
+
+Set current = ActiveSheet
+
+wasFound = False
+
+For Each ws In ThisWorkbook.Worksheets
+
+    With ws.Cells
+
+        Set rng = .Find(myItem, LookIn:=xlValues, LookAt:=xlPart, MatchCase:=False)
+
+        If Not rng Is Nothing Then
+
+            wasFound = True
+
+            myFind = rng.Address
+
+            Do
+
+                If InStr(1, rng.Value, myItem) > 0 Then
+
+                    myanswer = MsgBox("'" & myItem & "' found in worksheet '" & ws.Name & "' in cell '" & rng.Address & rng.Value & "'" & vbNewLine & vbNewLine & _
+
+                        "What do you want to do?", vbQuestion + vbYesNoCancel + vbDefaultButton1, "'Yes' = Continue 'No' = Stop   'Cancel' = Abort")
+
+                    If myanswer = vbNo Then
+
+                        strRootPath = rng.Value
+
+                        'ActiveWorkbook.FollowHyperlink rng.Value, NewWindow:=True
+
+                        dummyvalue = InputBox("hi", "Copy and Paste Code Below, Press Ok to Go File", rng.Value)
+
+                         ActiveWorkbook.FollowHyperlink dummyvalue, NewWindow:=True
+
+                        GoTo endSub
+
+                    ElseIf myanswer = vbCancel Then
+
+                        GoTo endSub
+
+                    ElseIf myanswer <> vbYes Then
+
+                        GoTo endSub
+
+                    End If
+
+                End If
+
+                Set rng = .FindNext(rng)
+
+            Loop While Not rng Is Nothing And rng.Address <> myFind
+
+        End If
+
+    End With
+
+Next ws
+
+If Not wasFound Then MsgBox "String '" & myItem & "' not found.", vbExclamation, "ATTENTION!"
+
+current.Activate
+
+endSub:
+
+End Sub
